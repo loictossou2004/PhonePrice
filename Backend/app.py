@@ -5,16 +5,32 @@ import os
 from flask import Flask, jsonify, make_response, session
 from flask_cors import CORS
 from modules.phone import REQUEST
+from modules.categories import CATEGORIES_REQUEST
+from modules.utils import error_response, success_response
+import dotenv
 
 APP = Flask(__name__)  # Crée une instance de l'application Flask
 CORS(APP, origins="*")
 
 ### swagger specific ###
-APP.register_blueprint(REQUEST, url_prefix='/api/phone')  # Enregistre le blueprint CONTACT_REQUEST pour les routes relatives aux contacts
+@APP.errorhandler(400)
+def bad_request(error):
+    return error_response(message=str(error), code=400)
+
+@APP.errorhandler(500)
+def server_error(error):
+    return error_response(message=str(error), code=500)
+
+@APP.route('/', methods=['GET'])
+def api_home():
+    return success_response(message="Welcome to the API Server for Phone Pricing Services")
+
+APP.register_blueprint(REQUEST, url_prefix='/api/phone')
+APP.register_blueprint(CATEGORIES_REQUEST, url_prefix='/api/categories')
 
 if __name__ == '__main__':
 
-    PORT = int(os.environ.get('PORT', 5000))  # Récupère le numéro de port à partir de la variable d'environnement PORT ou utilise le port 5000 par défaut
-    CORS = CORS(APP, resources={r"/*": {'origins':"*", 'methods': '*'}})  # Active le Cross-Origin Resource Sharing (CORS) pour toutes les ressources et origines
-
-    APP.run(host='0.0.0.0', port=PORT, debug=True)  # Lance l'application Flask en écoutant sur l'adresse IP '0.0.0.0' et le port spécifié, avec le mode de débogage activé
+    PORT = int(os.environ.get('PORT', 5000))
+    CORS = CORS(APP, resources={r"/*": {'origins':"*", 'methods': '*'}})
+    dotenv.load_dotenv()
+    APP.run(host='0.0.0.0', port=PORT, debug=True)

@@ -3,7 +3,6 @@ from flask import Blueprint, request
 import jwt, json
 from .utils import *
 from flask_cors import cross_origin
-from pymongo import MongoClient
 from fpdf import FPDF
 
 
